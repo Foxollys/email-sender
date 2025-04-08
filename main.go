@@ -82,6 +82,20 @@ func sendEmailHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `{"status": "ok"}`)
 }
 
+func enableCORS(next http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+        if r.Method == "OPTIONS" {
+            return
+        }
+        next(w, r)
+    }
+}
+
+
+
 func main() {
 
 	// Проверка загрузки .env
@@ -99,4 +113,7 @@ func main() {
 	}
 	log.Printf("Listening on :%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+	// Используй для роута:
+
+	http.HandleFunc("/send", enableCORS(sendEmailHandler))
 }
